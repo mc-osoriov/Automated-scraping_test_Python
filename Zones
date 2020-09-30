@@ -1,0 +1,34 @@
+from selenium import webdriver 
+from selenium.webdriver.common.keys import Keys
+from bs4 import BeautifulSoup
+import requests
+import csv
+import pandas as pd
+
+driver = webdriver.Chrome(executable_path='./chromedriver')
+url = 'http://www.conadeip.mx/'
+driver.get (url)
+
+################################## ZONAS ####################################
+
+driver.find_element_by_id_name('menu-item-2284').click()
+driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[1]/div/div[1]/ul/div/ul/li[2]/a').click()
+
+#TABLA ZONA BAJIO
+soup = BeautifulSoup( driver.page_source, 'html.parser')
+table = (soup.find (id='et_lb_module_content'))
+#print (table)
+
+zonas = (table.find_all(class_='et_lb_toggle_content_inner'))
+zona_nom = [zona.find(class_='et_lb_toggle_title').text.replace('\n', ' ').strip().replace('\t', '') for zona in zonas]
+zona_sucur = [zona.find(class_='et_lb_toggle_content').text.replace('\n', ' ').strip().replace('\t', '') for zona in zonas]
+#print (name)
+
+zona_table = pd.DataFrame (
+    {'Zona': zona_nom, 
+    'Sucursales': zona_sucur})
+print (zona_table)
+
+zona_final_table = pd.concat ([zona_table])
+#print (med_final_table)
+zona_final_table.to_csv('Zona.csv')
